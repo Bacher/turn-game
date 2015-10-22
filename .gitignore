@@ -1,0 +1,9 @@
+/.idea/
+
+/node_modules/
+/bower_components/
+
+/js/**/*.js
+/js/**/*.js.map
+
+/styles/**/*.css
