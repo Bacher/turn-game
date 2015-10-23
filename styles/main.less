@@ -1,10 +1,46 @@
 
-#game, #ui {
+BODY {
+  background: #000;
+
+  &.hide-cursor {
+    cursor: none !important;
+  }
+
+  &.wait {
+    cursor: wait !important;
+  }
+}
+
+#game, #ui, .ui {
   position: absolute;
   top: 0;
   left: 0;
 }
 
+#game {
+  background: #FFF;
+}
+
 #ui.enemy-turn {
   box-shadow: inset 0 0 33px 8px #000;
+}
+
+.ui {
+  pointer-events: none;
+  cursor: default;
+
+  & > * {
+    pointer-events: all;
+  }
+}
+
+.turn-end {
+  position: absolute;
+  bottom: 50px;
+  right: 5px;
+  width: 60px;
+  height: 20px;
+  color: #FFF;
+  background: #000;
+  cursor: pointer;
 }

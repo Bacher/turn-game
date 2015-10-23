@@ -3,8 +3,10 @@ const WIDTH = 800;
 const HEIGHT = 400;
 const CELL_WIDTH = 50;
 
+const $body = $('BODY');
 const $gameCanvas = $('#game');
 const $uiCanvas = $('#ui');
+const $ui = $('.ui');
 
 const gameCanvasNode = $gameCanvas.get(0);
 const uiCanvasNode = $uiCanvas.get(0);
@@ -15,6 +17,9 @@ gameCanvasNode.height = HEIGHT;
 uiCanvasNode.width = WIDTH;
 uiCanvasNode.height = HEIGHT;
 
+$ui.width(WIDTH);
+$ui.height(HEIGHT);
+
 const ctx = gameCanvasNode.getContext('2d');
 const uiCtx = uiCanvasNode.getContext('2d');
 
@@ -23,10 +28,12 @@ const input = new Input();
 const surface = new Surface();
 const ui = new UI();
 
-surface.addObject(new Player({
+var player;
+
+surface.addObject((player = new Player({
     col: 3,
     row: 3
-}));
+})));
 
 surface.addObject(new Enemy({
     col: 6,
@@ -39,4 +46,4 @@ setInterval(() => {
 
     uiCtx.clearRect(0, 0, WIDTH, HEIGHT);
     ui.draw();
-}, 50);
+}, 100);

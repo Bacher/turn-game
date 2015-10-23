@@ -3,6 +3,6 @@ class Enemy extends Character {
     constructor(params) {
         super(params);
 
-        this._color = '#F00';
+        this._textureName = 'character';
     }
 }

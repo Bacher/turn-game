@@ -7,21 +7,24 @@ class GameObject {
         };
 
         this._isHover = false;
+
+        this._xy = this._calcXY(this.pos);
     }
 
     draw() {
-        ctx.save();
-
-        ctx.translate(this.pos.col * CELL_WIDTH, this.pos.row * CELL_WIDTH);
-
         this._draw();
-
-        ctx.restore();
     }
 
     _draw() {
         ctx.fillStyle = '#F00';
         ctx.fillRect(0, 0, CELL_WIDTH-1, CELL_WIDTH-1);
+    }
+
+    _calcXY(pos) {
+        return {
+            x: pos.col * CELL_WIDTH,
+            y: pos.row * CELL_WIDTH
+        };
     }
 
     toggleHover(enable) {
