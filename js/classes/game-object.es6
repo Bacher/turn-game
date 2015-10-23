@@ -1,14 +1,9 @@
 
 class GameObject {
     constructor(params) {
-        this.pos = {
-            row: params.row,
-            col: params.col
-        };
+        this.move(params);
 
         this._isHover = false;
-
-        this._xy = this._calcXY(this.pos);
     }
 
     draw() {
@@ -18,6 +13,15 @@ class GameObject {
     _draw() {
         ctx.fillStyle = '#F00';
         ctx.fillRect(0, 0, CELL_WIDTH-1, CELL_WIDTH-1);
+    }
+
+    move(pos) {
+        this.pos = {
+            row: pos.row,
+            col: pos.col
+        };
+
+        this._xy = this._calcXY(this.pos);
     }
 
     _calcXY(pos) {

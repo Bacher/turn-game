@@ -67,7 +67,6 @@ class Player extends Character {
                 this._getMoveCells(already, move, ap - 2);
             });
         }
-
     }
 
     reduceAp(amount) {
@@ -85,8 +84,7 @@ class Player extends Character {
     goTo(finalCell) {
         this.reduceAp(finalCell.cost);
 
-        surface._userWait = true;
-        $body.addClass('wait');
+        surface.wait();
 
         const steps = [];
         var moveCell = finalCell;
@@ -107,17 +105,25 @@ class Player extends Character {
 
         const intervalId = setInterval(() => {
             const delta = animationStep / 8;
-            this._xy.x = startPos.x + (moveToXY.x - startPos.x) * delta;
-            this._xy.y = startPos.y + (moveToXY.y - startPos.y) * delta;
+            this._xy.x = Math.round(startPos.x + (moveToXY.x - startPos.x) * delta);
+            this._xy.y = Math.round(startPos.y + (moveToXY.y - startPos.y) * delta);
 
             animationStep++;
 
             if (animationStep === 9) {
                 if (step === 0) {
+                    this.move(finalCell.pos);
+
+                    const prevCellPos = steps[1].pos;
+                    if (finalCell.pos.row !== prevCellPos.row) {
+                        this._direction = (finalCell.pos.row > prevCellPos.row ? 'up' : 'down')
+                    } else {
+                        this._direction = (finalCell.pos.col > prevCellPos.col ? 'right' : 'left')
+                    }
+
                     clearInterval(intervalId);
 
-                    surface._userWait = false;
-                    $body.removeClass('wait');
+                    surface.play();
 
                 } else {
                     animationStep = 1;
@@ -130,6 +136,10 @@ class Player extends Character {
             }
 
         }, 50);
+    }
+
+    canAttack() {
+        return this._ap >= this.weapon._cost;
     }
 
 }

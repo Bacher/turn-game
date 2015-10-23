@@ -2,6 +2,7 @@
 class Surface {
     constructor() {
         this._objects = [];
+        this._decals = [];
 
         this._size = {
             hor: 16,
@@ -67,6 +68,10 @@ class Surface {
 
             this._drawMouseHover();
         }
+
+        this._decals.forEach(decal => {
+            ctx.drawImage(Textures.get(decal.textureName), decal.xy.x, decal.xy.y);
+        });
     }
 
     _drawMouseHover() {
@@ -74,25 +79,26 @@ class Surface {
 
         this._hoverCellPos = local;
 
-        if (!this._objects.some(obj => {
-                obj.toggleHover(false);
+        this._cursorAimMode = false;
+        $body.removeClass('hide-cursor');
 
-                const isObjectHover = obj.pos.row === local.row && obj.pos.col === local.col;
+        this._objects.some(obj => {
+            obj.toggleHover(false);
 
-                if (isObjectHover) {
-                    if (this._activePlayer && obj instanceof Enemy) {
-                        $body.addClass('hide-cursor');
-                        this._cursorAimMode = true;
-                    } else {
-                        obj.toggleHover(true);
-                    }
+            const isObjectHover = obj.pos.row === local.row && obj.pos.col === local.col;
 
-                    return true;
+            if (isObjectHover) {
+                if (this._activePlayer && obj instanceof Enemy && this._activePlayer.canAttack()) {
+                    $body.addClass('hide-cursor');
+                    this._cursorAimMode = true;
+
+                } else {
+                    obj.toggleHover(true);
                 }
-            })) {
-            this._cursorAimMode = false;
-            $body.removeClass('hide-cursor');
-        }
+
+                return true;
+            }
+        });
     }
 
     _drawPath(moveCell) {
@@ -107,28 +113,30 @@ class Surface {
     }
 
     makeClick(mousePos) {
-        const local = this._getLocalPos(mousePos);
+        if (!this._userWait) {
+            const local = this._getLocalPos(mousePos);
 
-        if (!this._objects.some(obj => {
-            if (obj.pos.row === local.row && obj.pos.col === local.col) {
+            if (!this._objects.some(obj => {
+                    if (obj.pos.row === local.row && obj.pos.col === local.col) {
 
-                if (obj instanceof Player) {
-                    obj.toggleActive(true);
-                    this._activePlayer = obj;
+                        if (obj instanceof Player) {
+                            obj.toggleActive(true);
+                            this._activePlayer = obj;
 
-                } else if (this._activePlayer && obj instanceof Enemy) {
-                    this._activePlayer.hit(obj);
-                }
+                        } else if (this._activePlayer && obj instanceof Enemy && this._activePlayer.canAttack()) {
+                            this._activePlayer.hit(obj);
+                        }
 
-                return true;
-            }
-        })) {
-            if (this._moveCells) {
-                this._moveCells.some(moveCell => {
-                    if (local.row === moveCell.pos.row && local.col === moveCell.pos.col) {
-                        this._activePlayer.goTo(moveCell);
+                        return true;
                     }
-                });
+                })) {
+                if (this._moveCells) {
+                    this._moveCells.some(moveCell => {
+                        if (local.row === moveCell.pos.row && local.col === moveCell.pos.col) {
+                            this._activePlayer.goTo(moveCell);
+                        }
+                    });
+                }
             }
         }
     }
@@ -185,7 +193,9 @@ class Surface {
     }
 
     _isCellFree(pos) {
-        return true;
+        return !this._objects.some(object => {
+            return object.pos.row === pos.row && object.pos.col === pos.col;
+        });
     }
 
     _getLocalPos(xy) {
@@ -193,5 +203,34 @@ class Surface {
             row: Math.floor(xy.y / CELL_WIDTH),
             col: Math.floor(xy.x / CELL_WIDTH)
         };
+    }
+
+    wait() {
+        this._userWait = true;
+        $body.addClass('wait');
+    }
+
+    play() {
+        this._userWait = false;
+        $body.removeClass('wait');
+    }
+
+    addBloodSpray(target, by) {
+        this.wait();
+
+        const decal = {
+            textureName: 'blood-spray_right',
+            xy: _.clone(target._xy)
+        };
+
+        decal.xy.x += 30;
+
+        this._decals.push(decal);
+
+        setTimeout(() => {
+            this._decals.splice(this._decals.indexOf(decal), 1);
+
+            this.play();
+        }, 500)
     }
 }

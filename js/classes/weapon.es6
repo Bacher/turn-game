@@ -18,7 +18,7 @@ class Weapon {
     }
 
     hit(enemy) {
-        enemy.dealDamage(this._getRandomDamage());
+        enemy.dealDamage(this._getRandomDamage(), this);
     }
 
     _getRandomDamage() {

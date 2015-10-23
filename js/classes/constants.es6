@@ -5,3 +5,11 @@ const STANDS = {
     stand: 3,
     run: 4
 };
+
+const STANDS_L = [
+    null,
+    'lie',
+    'crouch',
+    'stand',
+    'run'
+];

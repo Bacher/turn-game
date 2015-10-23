@@ -1,4 +1,11 @@
 
+const MODEL_DIRECTION = {
+    'up': 'back',
+    'down': 'front',
+    'left': 'left',
+    'right': 'right'
+};
+
 class Character extends GameObject {
     constructor(params) {
         super(params);
@@ -11,7 +18,7 @@ class Character extends GameObject {
         this._hp = 137;
     }
 
-    dealDamage(amount) {
+    dealDamage(amount, by) {
         this._hp -= amount;
 
         if (this._hp <= 0) {
@@ -19,6 +26,8 @@ class Character extends GameObject {
 
             this.kill();
         }
+
+        surface.addBloodSpray(this, by);
     }
 
     kill() {
@@ -30,13 +39,13 @@ class Character extends GameObject {
     }
 
     _draw() {
-        if (this._textureName) {
-            const texture = Textures.get(this._textureName + '_' + this._direction);
+        var textureName = this._textureName + '_' + MODEL_DIRECTION[this._direction] + '_' + STANDS_L[this._stance];
 
-            if (texture) {
-                ctx.drawImage(texture, this._xy.x + 10, this._xy.y - 14);
-            }
+        if (Math.random() < 0.5) {
+            textureName += '_2';
         }
+
+        Textures.draw(textureName, this._xy.x + 10, this._xy.y - 14);
 
         if (this._isHover) {
             ctx.strokeStyle = this._hoverColor;

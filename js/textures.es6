@@ -3,10 +3,44 @@ const Textures = {
     _hash: {}
 };
 
-Textures.loadTexture = function(name) {
-    const texture = Textures._hash[name] = new Image();
+Textures.loadTexture = function(name, width, height) {
+    const img = new Image();
 
-    texture.src = `textures/${name}.gif`;
+    Textures._hash[name] = {
+        img,
+        x: 0,
+        y: 0,
+        width,
+        height
+    };
+
+    img.src = `textures/${name}.gif`;
+};
+
+Textures.loadSprite = function(name, width, height, parts) {
+    const img = new Image();
+
+    parts.forEach((line, y) => {
+        line.forEach((part, x) => {
+            Textures._hash[name + '_' + part] = {
+                img,
+                x: x * (width + 2),
+                y: y * (height + 2),
+                width,
+                height
+            };
+        });
+    });
+
+    img.src = `textures/${name}.gif`;
+};
+
+Textures.draw = function(name, x, y) {
+    const texture = Textures._hash[name];
+
+    if (texture) {
+        ctx.drawImage(texture.img, texture.x, texture.y, texture.width, texture.height, x, y, texture.width, texture.height);
+    }
 };
 
 Textures.get = function(name) {
@@ -14,7 +48,12 @@ Textures.get = function(name) {
 };
 
 
-Textures.loadTexture('character_front');
-Textures.loadTexture('character_back');
-Textures.loadTexture('character_left');
-Textures.loadTexture('character_right');
+Textures.loadSprite('character', 30, 60, [
+    ['right_stand', 'right_stand_2', 'right_crouch', 'right_crouch_2'],
+    ['left_stand', 'left_stand_2', 'left_crouch', 'left_crouch_2'],
+    ['front_stand', 'front_stand_2', 'front_crouch', 'front_crouch_2'],
+    ['back_stand', 'back_stand_2', 'back_crouch', 'back_crouch_2']
+]);
+
+Textures.loadTexture('blood-spray_right', 30, 20);
+Textures.loadTexture('blood-spray_left', 30, 20);
