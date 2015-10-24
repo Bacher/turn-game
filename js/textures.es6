@@ -55,5 +55,14 @@ Textures.loadSprite('character', 30, 60, [
     ['back_stand', 'back_stand_2', 'back_crouch', 'back_crouch_2']
 ]);
 
+Textures.loadSprite('ground', 49, 49, [
+    ['1', '2', '3', '4']
+]);
+
+Textures.loadSprite('wall', 49, 49, [
+    ['ver', 'hor', '', '']
+]);
+
+
 Textures.loadTexture('blood-spray_right', 30, 20);
 Textures.loadTexture('blood-spray_left', 30, 20);

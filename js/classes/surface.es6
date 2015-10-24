@@ -9,6 +9,18 @@ class Surface {
             ver: 8
         };
 
+        this._cells = new Array(this._size.ver);
+        _.times(this._cells.length, (row) => {
+            const rowCells = this._cells[row] = new Array(this._size.hor);
+
+            _.times(rowCells.length, col => {
+                rowCells[col] = {
+                    textureName: 'ground_' + _.random(1, 4),
+                    objects: []
+                };
+            });
+        });
+
         this._userWait = false;
 
         this._activePlayer = null;
@@ -22,9 +34,20 @@ class Surface {
 
         ctx.fillStyle = '#0F0';
 
-        for (var y = 0; y < this._size.ver; ++y) {
-            for (var x = 0; x < this._size.hor; ++x) {
-                ctx.fillRect(x * CELL_WIDTH, y * CELL_WIDTH, CELL_WIDTH - 1, CELL_WIDTH - 1);
+        for (var row = 0; row < this._size.ver; ++row) {
+            const rowCells = this._cells[row];
+
+            for (var col = 0; col < this._size.hor; ++col) {
+                const cell = rowCells[col];
+                const x = col * CELL_WIDTH;
+                const y = row * CELL_WIDTH;
+
+                Textures.draw(cell.textureName, x, y);
+
+                cell.objects.forEach(obj => {
+                    debugger
+                    Textures.draw(obj.textureName, x, y);
+                });
             }
         }
 
@@ -193,9 +216,12 @@ class Surface {
     }
 
     _isCellFree(pos) {
-        return !this._objects.some(object => {
-            return object.pos.row === pos.row && object.pos.col === pos.col;
-        });
+        return (
+            !this._objects.some(object => {
+                return object.pos.row === pos.row && object.pos.col === pos.col;
+            }) &&
+            !this._cells[pos.row][pos.col].objects.some(obj => !obj.params.move)
+        );
     }
 
     _getLocalPos(xy) {
@@ -232,5 +258,12 @@ class Surface {
 
             this.play();
         }, 500)
+    }
+
+    addEnvObject(textureName, col, row, params) {
+        this._cells[row][col].objects.push({
+            textureName,
+            params
+        });
     }
 }

@@ -114,7 +114,8 @@ class Player extends Character {
                 if (step === 0) {
                     this.move(finalCell.pos);
 
-                    const prevCellPos = steps[1].pos;
+                    const prevCellPos = moveTo.prev.pos;
+
                     if (finalCell.pos.row !== prevCellPos.row) {
                         this._direction = (finalCell.pos.row > prevCellPos.row ? 'up' : 'down')
                     } else {

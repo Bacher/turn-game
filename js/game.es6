@@ -26,6 +26,20 @@ const uiCtx = uiCanvasNode.getContext('2d');
 const input = new Input();
 
 const surface = new Surface();
+
+surface.addEnvObject('wall_ver', 7, 3, {
+    opaque: false,
+    move: false
+});
+surface.addEnvObject('wall_ver', 7, 4, {
+    opaque: false,
+    move: false
+});
+surface.addEnvObject('wall_ver', 7, 5, {
+    opaque: false,
+    move: false
+});
+
 const ui = new UI();
 
 var player;
@@ -36,7 +50,7 @@ surface.addObject((player = new Player({
 })));
 
 surface.addObject(new Enemy({
-    col: 6,
+    col: 10,
     row: 4
 }));
 
