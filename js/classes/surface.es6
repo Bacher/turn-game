@@ -1,12 +1,15 @@
 
+const SEG_HEIGHT = 7;
+const K = SEG_HEIGHT / CELL_WIDTH_SHIFT;
+
 class Surface {
     constructor() {
         this._objects = [];
         this._decals = [];
 
         this._size = {
-            hor: 16,
-            ver: 8
+            hor: Math.ceil(WIDTH / CELL_WIDTH),
+            ver: Math.ceil(HEIGHT / CELL_VIRT_HEIGHT)
         };
 
         this._cells = new Array(this._size.ver);
@@ -14,8 +17,17 @@ class Surface {
             const rowCells = this._cells[row] = new Array(this._size.hor);
 
             _.times(rowCells.length, col => {
+                const rnd = Math.random();
+                var variation = 1;
+
+                if (rnd < 0.2) {
+                    variation = 2;
+                } else if (rnd < 0.26) {
+                    variation = 3;
+                }
+
                 rowCells[col] = {
-                    textureName: 'ground_' + _.random(1, 4),
+                    textureName: 'ground_' + variation,
                     objects: []
                 };
             });
@@ -29,8 +41,23 @@ class Surface {
         this._cursorAimMode = false;
     }
 
+    calcCellXY(pos) {
+        const xy = {
+            x: pos.col * CELL_WIDTH,
+            y: pos.row * CELL_VIRT_HEIGHT
+        };
+
+        if (pos.row % 2) {
+            xy.x += CELL_WIDTH_SHIFT;
+        }
+
+        return xy;
+    }
+
     draw() {
         const mouse = this._mouse = input.getMousePos();
+
+        this._hoverCellPos = this._getLocalPos(this._mouse);
 
         ctx.fillStyle = '#0F0';
 
@@ -39,14 +66,13 @@ class Surface {
 
             for (var col = 0; col < this._size.hor; ++col) {
                 const cell = rowCells[col];
-                const x = col * CELL_WIDTH;
-                const y = row * CELL_WIDTH;
 
-                Textures.draw(cell.textureName, x, y);
+                const xy = this.calcCellXY({ row, col });
+
+                Textures.draw(cell.textureName, xy.x, xy.y);
 
                 cell.objects.forEach(obj => {
-                    debugger
-                    Textures.draw(obj.textureName, x, y);
+                    Textures.draw(obj.textureName, xy.x, xy.y);
                 });
             }
         }
@@ -56,19 +82,16 @@ class Surface {
         if (!this._userWait) {
 
             if (this._hoverCellPos) {
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(this._hoverCellPos.col * CELL_WIDTH - 1, this._hoverCellPos.row * CELL_WIDTH - 1, CELL_WIDTH + 1, CELL_WIDTH + 1);
+                const xy = this.calcCellXY(this._hoverCellPos);
+
+                Textures.draw('hover', xy.x - 1, xy.y - 1);
 
                 if (this._moveCells) {
                     this._moveCells.some(moveCell => {
                         if (moveCell.pos.row === this._hoverCellPos.row && moveCell.pos.col === this._hoverCellPos.col) {
-                            const x = moveCell.pos.col * CELL_WIDTH;
-                            const y = moveCell.pos.row * CELL_WIDTH;
-
                             ctx.font = '20px Sans-serif';
                             ctx.fillStyle = '#F00';
-                            ctx.fillText(moveCell.cost, x + 20, y + 30);
+                            ctx.fillText(moveCell.cost, xy.x + 13, xy.y + 21);
 
                             this._drawPath(moveCell.prev);
 
@@ -93,22 +116,18 @@ class Surface {
         }
 
         this._decals.forEach(decal => {
-            ctx.drawImage(Textures.get(decal.textureName), decal.xy.x, decal.xy.y);
+            Textures.draw(decal.textureName, decal.xy);
         });
     }
 
     _drawMouseHover() {
-        const local = this._getLocalPos(this._mouse);
-
-        this._hoverCellPos = local;
-
         this._cursorAimMode = false;
         $body.removeClass('hide-cursor');
 
         this._objects.some(obj => {
             obj.toggleHover(false);
 
-            const isObjectHover = obj.pos.row === local.row && obj.pos.col === local.col;
+            const isObjectHover = obj.pos.row === this._hoverCellPos.row && obj.pos.col === this._hoverCellPos.col;
 
             if (isObjectHover) {
                 if (this._activePlayer && obj instanceof Enemy && this._activePlayer.canAttack()) {
@@ -126,10 +145,9 @@ class Surface {
 
     _drawPath(moveCell) {
         if (moveCell && moveCell.prev) {
-            const pos = moveCell.pos;
+            const xy = this.calcCellXY(moveCell.pos);
 
-            ctx.fillStyle = '#F00';
-            ctx.fillRect(pos.col * CELL_WIDTH + 20, pos.row * CELL_WIDTH + 20, 5, 5);
+            Textures.draw('steps', xy.x + 12, xy.y + 7);
 
             this._drawPath(moveCell.prev);
         }
@@ -188,8 +206,9 @@ class Surface {
     }
 
     highlightCell(pos) {
-        ctx.fillStyle = '#FFF';
-        ctx.fillRect(pos.col * CELL_WIDTH, pos.row * CELL_WIDTH, CELL_WIDTH-1, CELL_WIDTH-1);
+        const xy = this.calcCellXY(pos);
+
+        Textures.draw('move-highlight', xy.x, xy.y);
     }
 
     getAroundFreeCells(pos) {
@@ -198,10 +217,19 @@ class Surface {
         const row = pos.row;
         const col = pos.col;
 
-        for (var d = 0; d < 4; ++d) {
+        const xShift = row % 2 === 1 ? 1 : 0;
+
+        [
+            [1, 0],
+            [-1, 0],
+            [ 0 + xShift,  1],
+            [-1 + xShift,  1],
+            [ 0 + xShift, -1],
+            [-1 + xShift, -1]
+        ].forEach(variant => {
             const checkPos = {
-                row: row + (d > 1 ? (d === 2 ? -1 : 1) : 0),
-                col: col + (d < 2 ? (d === 0 ? -1 : 1) : 0)
+                row: row + variant[1],
+                col: col + variant[0]
             };
 
             if (checkPos.row >= 0 && checkPos.row <= this._size.ver &&
@@ -210,7 +238,7 @@ class Surface {
             ) {
                 cells.push(checkPos);
             }
-        }
+        });
 
         return cells;
     }
@@ -225,10 +253,61 @@ class Surface {
     }
 
     _getLocalPos(xy) {
-        return {
-            row: Math.floor(xy.y / CELL_WIDTH),
-            col: Math.floor(xy.x / CELL_WIDTH)
+        const pos = {
+            row: 0,
+            col: 0
         };
+
+        const y21 = xy.y % CELL_VIRT_HEIGHT;
+        const y42 = xy.y % (CELL_VIRT_HEIGHT * 2);
+
+        if (y21 > SEG_HEIGHT) {
+            pos.row = Math.floor(xy.y / CELL_VIRT_HEIGHT);
+
+            if (y42 <= CELL_VIRT_HEIGHT) {
+                pos.col = Math.floor(xy.x / CELL_WIDTH);
+
+            } else {
+                pos.col = Math.floor((xy.x - CELL_WIDTH_SHIFT) / CELL_WIDTH);
+            }
+
+        } else {
+            var x36 = xy.x % CELL_WIDTH;
+
+            if (y42 < CELL_VIRT_HEIGHT) {
+                x36 = (x36 + CELL_WIDTH_SHIFT) % CELL_WIDTH;
+            }
+
+            var side;
+
+            if (x36 < CELL_WIDTH_SHIFT) {
+                side = y21 / x36 > K;
+
+            } else {
+                side = (SEG_HEIGHT - y21) / (x36 - CELL_WIDTH_SHIFT) < K;
+            }
+
+            if (side) {
+                pos.row = Math.floor(xy.y / CELL_VIRT_HEIGHT);
+
+                if (y42 < CELL_VIRT_HEIGHT) {
+                    pos.col = Math.floor(xy.x / CELL_WIDTH);
+                } else {
+                    pos.col = Math.floor((xy.x - CELL_WIDTH_SHIFT)/ CELL_WIDTH);
+                }
+
+            } else {
+                pos.row = Math.floor(xy.y / CELL_VIRT_HEIGHT) - 1;
+
+                if (y42 < CELL_VIRT_HEIGHT) {
+                    pos.col = Math.floor((xy.x - CELL_WIDTH_SHIFT) / CELL_WIDTH);
+                } else {
+                    pos.col = Math.floor(xy.x / CELL_WIDTH);
+                }
+            }
+        }
+
+        return pos;
     }
 
     wait() {
@@ -249,7 +328,8 @@ class Surface {
             xy: _.clone(target._xy)
         };
 
-        decal.xy.x += 30;
+        decal.xy.y -= 20;
+        decal.xy.x += 22;
 
         this._decals.push(decal);
 

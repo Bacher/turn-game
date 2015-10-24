@@ -45,13 +45,7 @@ class Character extends GameObject {
             textureName += '_2';
         }
 
-        Textures.draw(textureName, this._xy.x + 10, this._xy.y - 14);
-
-        if (this._isHover) {
-            ctx.strokeStyle = this._hoverColor;
-            ctx.lineWidth = 1;
-            ctx.strokeRect(this._xy.x, this._xy.y, CELL_WIDTH, CELL_WIDTH);
-        }
+        Textures.draw(textureName, this._xy.x + 2, this._xy.y - 40);
     }
 
 }

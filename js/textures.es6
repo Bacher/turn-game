@@ -3,7 +3,7 @@ const Textures = {
     _hash: {}
 };
 
-Textures.loadTexture = function(name, width, height) {
+Textures.loadTexture = function(name, width, height, extension = 'gif') {
     const img = new Image();
 
     Textures._hash[name] = {
@@ -14,7 +14,7 @@ Textures.loadTexture = function(name, width, height) {
         height
     };
 
-    img.src = `textures/${name}.gif`;
+    img.src = `textures/${name}.${extension}`;
 };
 
 Textures.loadSprite = function(name, width, height, parts) {
@@ -24,8 +24,8 @@ Textures.loadSprite = function(name, width, height, parts) {
         line.forEach((part, x) => {
             Textures._hash[name + '_' + part] = {
                 img,
-                x: x * (width + 2),
-                y: y * (height + 2),
+                x: x * (width + 1),
+                y: y * (height + 1),
                 width,
                 height
             };
@@ -36,6 +36,11 @@ Textures.loadSprite = function(name, width, height, parts) {
 };
 
 Textures.draw = function(name, x, y) {
+    if (typeof x === 'object') {
+        y = x.y;
+        x = x.x;
+    }
+
     const texture = Textures._hash[name];
 
     if (texture) {
@@ -55,8 +60,8 @@ Textures.loadSprite('character', 30, 60, [
     ['back_stand', 'back_stand_2', 'back_crouch', 'back_crouch_2']
 ]);
 
-Textures.loadSprite('ground', 49, 49, [
-    ['1', '2', '3', '4']
+Textures.loadSprite('ground', CELL_WIDTH, CELL_HEIGHT, [
+    ['1', '2', '3']
 ]);
 
 Textures.loadSprite('wall', 49, 49, [
@@ -66,3 +71,7 @@ Textures.loadSprite('wall', 49, 49, [
 
 Textures.loadTexture('blood-spray_right', 30, 20);
 Textures.loadTexture('blood-spray_left', 30, 20);
+Textures.loadTexture('hover', 38, 30);
+Textures.loadTexture('move-highlight', CELL_WIDTH, CELL_HEIGHT, 'png');
+Textures.loadTexture('active-cell', CELL_WIDTH, CELL_HEIGHT, 'png');
+Textures.loadTexture('steps', 11, 15);

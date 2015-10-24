@@ -1,8 +1,4 @@
 
-const WIDTH = 800;
-const HEIGHT = 400;
-const CELL_WIDTH = 50;
-
 const $body = $('BODY');
 const $gameCanvas = $('#game');
 const $uiCanvas = $('#ui');

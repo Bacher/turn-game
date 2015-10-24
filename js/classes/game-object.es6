@@ -21,14 +21,7 @@ class GameObject {
             col: pos.col
         };
 
-        this._xy = this._calcXY(this.pos);
-    }
-
-    _calcXY(pos) {
-        return {
-            x: pos.col * CELL_WIDTH,
-            y: pos.row * CELL_WIDTH
-        };
+        this._xy = surface.calcCellXY(this.pos);
     }
 
     toggleHover(enable) {

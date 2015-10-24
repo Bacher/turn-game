@@ -27,9 +27,7 @@ class Player extends Character {
 
     _draw() {
         if (this._isActive) {
-            ctx.strokeStyle = '#FFF';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(this._xy.x, this._xy.y, CELL_WIDTH, CELL_WIDTH);
+            Textures.draw('active-cell', this._xy);
 
             const cur = { cost: 0, pos: this.pos };
             const cells = [cur];
@@ -101,7 +99,7 @@ class Player extends Character {
         var animationStep = 1;
         var startPos = _.clone(this._xy);
         var moveTo = steps[step];
-        var moveToXY = this._calcXY(moveTo.pos);
+        var moveToXY = surface.calcCellXY(moveTo.pos);
 
         const intervalId = setInterval(() => {
             const delta = animationStep / 8;
@@ -132,7 +130,7 @@ class Player extends Character {
 
                     startPos = _.clone(this._xy);
                     moveTo = steps[step];
-                    moveToXY = this._calcXY(moveTo.pos);
+                    moveToXY = surface.calcCellXY(moveTo.pos);
                 }
             }
 
