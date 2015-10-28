@@ -64,14 +64,16 @@ Textures.loadSprite('ground', CELL_WIDTH, CELL_HEIGHT, [
     ['1', '2', '3']
 ]);
 
-Textures.loadSprite('wall', 49, 49, [
-    ['ver', 'hor', '', '']
+Textures.loadSprite('wall', CELL_WIDTH, 56, [
+    ['1', '2', '3']
 ]);
 
 
+Textures.loadTexture('hit-label', 28, 12);
 Textures.loadTexture('blood-spray_right', 30, 20);
 Textures.loadTexture('blood-spray_left', 30, 20);
-Textures.loadTexture('hover', 38, 30);
+Textures.loadTexture('hover', 38, 37);
 Textures.loadTexture('move-highlight', CELL_WIDTH, CELL_HEIGHT, 'png');
 Textures.loadTexture('active-cell', CELL_WIDTH, CELL_HEIGHT, 'png');
+Textures.loadTexture('cell', CELL_WIDTH, CELL_HEIGHT, 'png');
 Textures.loadTexture('steps', 11, 15);

@@ -23,15 +23,15 @@ const input = new Input();
 
 const surface = new Surface();
 
-surface.addEnvObject('wall_ver', 7, 3, {
+surface.addEnvObject('wall_1', 8, 3, {
     opaque: false,
     move: false
 });
-surface.addEnvObject('wall_ver', 7, 4, {
+surface.addEnvObject('wall_1', 8, 4, {
     opaque: false,
     move: false
 });
-surface.addEnvObject('wall_ver', 7, 5, {
+surface.addEnvObject('wall_1', 7, 5, {
     opaque: false,
     move: false
 });
@@ -45,10 +45,10 @@ surface.addObject((player = new Player({
     row: 3
 })));
 
-surface.addObject(new Enemy({
-    col: 10,
-    row: 4
-}));
+//surface.addObject(new Enemy({
+//    col: 10,
+//    row: 4
+//}));
 
 setInterval(() => {
     ctx.clearRect(0, 0, WIDTH, HEIGHT);

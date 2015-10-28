@@ -10,8 +10,6 @@ class Character extends GameObject {
     constructor(params) {
         super(params);
 
-        this._hoverColor = '#F00';
-
         this._stance = STANDS.stand;
         this._direction = 'right';
 
@@ -27,7 +25,20 @@ class Character extends GameObject {
             this.kill();
         }
 
-        surface.addBloodSpray(this, by);
+        surface.wait(300);
+
+        surface.addDecal({
+            xy: { x: this._xy.x + 22, y: this._xy.y - 20 },
+            textureName: 'blood-spray_right',
+            lifeTime: 500
+        });
+
+        surface.addDecal({
+            xy: { x: this._xy.x + 1, y: this._xy.y - 30 },
+            textureName: 'hit-label',
+            lifeTime: 1000,
+            text: -amount
+        });
     }
 
     kill() {

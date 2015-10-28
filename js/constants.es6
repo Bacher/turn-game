@@ -4,8 +4,8 @@ const HEIGHT = 400;
 
 const CELL_WIDTH = 36;
 const CELL_WIDTH_SHIFT = 18;
-const CELL_HEIGHT = 28;
-const CELL_VIRT_HEIGHT = 21;
+const CELL_HEIGHT = 25;
+const CELL_VIRT_HEIGHT = 18;
 
 const STANDS = {
     lie: 1,

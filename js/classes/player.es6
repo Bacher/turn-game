@@ -102,6 +102,8 @@ class Player extends Character {
         var moveToXY = surface.calcCellXY(moveTo.pos);
 
         const intervalId = setInterval(() => {
+            this.rotateToDirection(moveTo.pos);
+
             const delta = animationStep / 8;
             this._xy.x = Math.round(startPos.x + (moveToXY.x - startPos.x) * delta);
             this._xy.y = Math.round(startPos.y + (moveToXY.y - startPos.y) * delta);
@@ -111,14 +113,6 @@ class Player extends Character {
             if (animationStep === 9) {
                 if (step === 0) {
                     this.move(finalCell.pos);
-
-                    const prevCellPos = moveTo.prev.pos;
-
-                    if (finalCell.pos.row !== prevCellPos.row) {
-                        this._direction = (finalCell.pos.row > prevCellPos.row ? 'up' : 'down')
-                    } else {
-                        this._direction = (finalCell.pos.col > prevCellPos.col ? 'right' : 'left')
-                    }
 
                     clearInterval(intervalId);
 

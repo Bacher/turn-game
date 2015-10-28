@@ -7,6 +7,8 @@ class Surface {
         this._objects = [];
         this._decals = [];
 
+        this._userWait = 0;
+
         this._size = {
             hor: Math.ceil(WIDTH / CELL_WIDTH),
             ver: Math.ceil(HEIGHT / CELL_VIRT_HEIGHT)
@@ -32,8 +34,6 @@ class Surface {
                 };
             });
         });
-
-        this._userWait = false;
 
         this._activePlayer = null;
         this._hoverCellPos = null;
@@ -69,10 +69,11 @@ class Surface {
 
                 const xy = this.calcCellXY({ row, col });
 
-                Textures.draw(cell.textureName, xy.x, xy.y);
+                Textures.draw(cell.textureName, xy);
+                Textures.draw('cell', xy);
 
                 cell.objects.forEach(obj => {
-                    Textures.draw(obj.textureName, xy.x, xy.y);
+                    Textures.draw(obj.textureName, xy.x, xy.y - 28);
                 });
             }
         }
@@ -117,6 +118,12 @@ class Surface {
 
         this._decals.forEach(decal => {
             Textures.draw(decal.textureName, decal.xy);
+
+            if (decal.text) {
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Sans-serif';
+                ctx.fillText(decal.text, decal.xy.x + 5, decal.xy.y + 11);
+            }
         });
     }
 
@@ -310,34 +317,42 @@ class Surface {
         return pos;
     }
 
-    wait() {
-        this._userWait = true;
+    wait(ms) {
+        this._userWait++;
+
         $body.addClass('wait');
+
+        if (ms) {
+            setTimeout(() => {
+                this.play();
+            }, ms);
+        }
     }
 
     play() {
-        this._userWait = false;
-        $body.removeClass('wait');
+        this._userWait--;
+
+        if (this._userWait) {
+            $body.removeClass('wait');
+        }
     }
 
-    addBloodSpray(target, by) {
-        this.wait();
-
-        const decal = {
-            textureName: 'blood-spray_right',
-            xy: _.clone(target._xy)
-        };
-
-        decal.xy.y -= 20;
-        decal.xy.x += 22;
-
+    addDecal(decal) {
         this._decals.push(decal);
 
-        setTimeout(() => {
-            this._decals.splice(this._decals.indexOf(decal), 1);
+        if (decal.lifeTime) {
+            setTimeout(() => {
+                this.removeDecal(decal);
+            }, decal.lifeTime);
+        }
+    }
 
-            this.play();
-        }, 500)
+    removeDecal(decal) {
+        var index;
+
+        if ((index = this._decals.indexOf(decal)) !== -1) {
+            this._decals.splice(index, 1);
+        }
     }
 
     addEnvObject(textureName, col, row, params) {

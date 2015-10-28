@@ -24,6 +24,16 @@ class GameObject {
         this._xy = surface.calcCellXY(this.pos);
     }
 
+    rotateToDirection(toPos) {
+        if (toPos.col !== this.pos.col || toPos.row !== this.pos.row) {
+            if (toPos.row % 2 === 0) {
+                this._direction = (toPos.col > this.pos.col ? 'right' : 'left');
+            } else {
+                this._direction = (toPos.col >= this.pos.col ? 'right' : 'left');
+            }
+        }
+    }
+
     toggleHover(enable) {
         this._isHover = enable;
     }
