@@ -73,7 +73,7 @@ class Surface {
                 Textures.draw('cell', xy);
 
                 cell.objects.forEach(obj => {
-                    Textures.draw(obj.textureName, xy.x, xy.y - 28);
+                    Textures.draw(obj.textureName, xy.x, xy.y - 31);
                 });
             }
         }
@@ -87,18 +87,16 @@ class Surface {
 
                 Textures.draw('hover', xy.x - 1, xy.y - 1);
 
-                if (this._moveCells) {
-                    this._moveCells.some(moveCell => {
-                        if (moveCell.pos.row === this._hoverCellPos.row && moveCell.pos.col === this._hoverCellPos.col) {
-                            ctx.font = '20px Sans-serif';
-                            ctx.fillStyle = '#F00';
-                            ctx.fillText(moveCell.cost, xy.x + 13, xy.y + 21);
+                const posKey = this._hoverCellPos.col + '-' + this._hoverCellPos.row;
 
-                            this._drawPath(moveCell.prev);
+                if (this._moveCells && this._moveCells[posKey]) {
+                    const moveCell = this._moveCells[posKey]
 
-                            return true;
-                        }
-                    });
+                    ctx.font = '20px Sans-serif';
+                    ctx.fillStyle = '#F00';
+                    ctx.fillText(moveCell.cost, xy.x + 13, xy.y + 21);
+
+                    this._drawPath(moveCell.prev);
                 }
             }
 
@@ -165,25 +163,23 @@ class Surface {
             const local = this._getLocalPos(mousePos);
 
             if (!this._objects.some(obj => {
-                    if (obj.pos.row === local.row && obj.pos.col === local.col) {
+                if (obj.pos.row === local.row && obj.pos.col === local.col) {
 
-                        if (obj instanceof Player) {
-                            obj.toggleActive(true);
-                            this._activePlayer = obj;
+                    if (obj instanceof Player) {
+                        obj.toggleActive(true);
+                        this._activePlayer = obj;
 
-                        } else if (this._activePlayer && obj instanceof Enemy && this._activePlayer.canAttack()) {
-                            this._activePlayer.hit(obj);
-                        }
-
-                        return true;
+                    } else if (this._activePlayer && obj instanceof Enemy && this._activePlayer.canAttack()) {
+                        this._activePlayer.hit(obj);
                     }
-                })) {
-                if (this._moveCells) {
-                    this._moveCells.some(moveCell => {
-                        if (local.row === moveCell.pos.row && local.col === moveCell.pos.col) {
-                            this._activePlayer.goTo(moveCell);
-                        }
-                    });
+
+                    return true;
+                }
+            })) {
+                const posKey = local.col + '-' + local.row;
+
+                if (this._moveCells && this._moveCells[posKey]) {
+                    this._activePlayer.goTo(this._moveCells[posKey]);
                 }
             }
         }
@@ -207,9 +203,9 @@ class Surface {
     setMoveCells(cells) {
         this._moveCells = cells;
 
-        cells.forEach(cell => {
-            this.highlightCell(cell.pos);
-        });
+        for (var posKey in cells) {
+            this.highlightCell(cells[posKey].pos);
+        }
     }
 
     highlightCell(pos) {
@@ -332,7 +328,7 @@ class Surface {
     play() {
         this._userWait--;
 
-        if (this._userWait) {
+        if (this._userWait === 0) {
             $body.removeClass('wait');
         }
     }

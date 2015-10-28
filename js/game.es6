@@ -45,10 +45,10 @@ surface.addObject((player = new Player({
     row: 3
 })));
 
-//surface.addObject(new Enemy({
-//    col: 10,
-//    row: 4
-//}));
+surface.addObject(new Enemy({
+    col: 10,
+    row: 4
+}));
 
 setInterval(() => {
     ctx.clearRect(0, 0, WIDTH, HEIGHT);

@@ -6,7 +6,7 @@ class Player extends Character {
         this._textureName = 'character';
         this._isActive = false;
 
-        this._fullAp = this._ap = 4;
+        this._fullAp = this._ap = 14;
 
         this.weapon = new Weapon({
             name: 'SVD',
@@ -29,17 +29,28 @@ class Player extends Character {
         if (this._isActive) {
             Textures.draw('active-cell', this._xy);
 
-            const cur = { cost: 0, pos: this.pos };
-            const cells = [cur];
+            const moveCells = this._getMoveCellsByCurrentPos();
 
-            this._getMoveCells(cells, cur, this._ap);
-
-            cells.splice(0, 1);
-
-            surface.setMoveCells(cells);
+            surface.setMoveCells(moveCells);
         }
 
         Character.prototype._draw.call(this);
+    }
+
+    _getMoveCellsByCurrentPos() {
+        const cur = { cost: 0, pos: this.pos };
+
+        const currentPosKey = this.pos.col + '-' + this.pos.row;
+
+        const cells = {
+            [currentPosKey]: cur
+        };
+
+        this._getMoveCells(cells, cur, this._ap);
+
+        delete cells[currentPosKey];
+
+        return cells;
     }
 
     _getMoveCells(already, cur, ap) {
@@ -49,7 +60,10 @@ class Player extends Character {
             const added = [];
 
             cells.forEach(cell => {
-                if (!already.some(move => move.pos.col === cell.col && move.pos.row === cell.row)) {
+                const posKey = cell.col + '-' + cell.row;
+                const cost = 2 + cur.cost;
+
+                if (!already[posKey] || already[posKey].cost > cost) {
                     const tmp = {
                         pos: cell,
                         prev: cur,
@@ -57,7 +71,7 @@ class Player extends Character {
                     };
 
                     added.push(tmp);
-                    already.push(tmp);
+                    already[posKey] = tmp;
                 }
             });
 
